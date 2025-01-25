@@ -2,19 +2,14 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Circle, Plus, ChevronRight, Home, BarChart2, Settings } from 'lucide-react';
+import { CheckCircle, Circle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AddCustomIbadahModal from './AddCustomIbadahModal';
-import ProgressView from './ProgressView';
-import SettingsView from './SettingsView';
 
-import { Ibadah } from '@/types/ibadah';
 import { View } from '@/types/notification';
 
 const IbadahTracker = () => {
-  const [currentView, setCurrentView] = useState<View>('home');
 
   // Sample data to demonstrate functionality
   const [ibadahList, setIbadahList] = useState([

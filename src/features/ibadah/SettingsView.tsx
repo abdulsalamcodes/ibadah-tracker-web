@@ -10,11 +10,6 @@ import { AlertTriangle, Moon, Bell, Languages, HelpCircle, LogOut } from 'lucide
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
 
-// First, let's define our interfaces to maintain type safety
-interface SettingsProps {
-  onLogout: () => void;
-}
-
 const SettingsView = () => {
   // We'll manage the settings state for demonstration
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);

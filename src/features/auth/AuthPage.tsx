@@ -49,6 +49,7 @@ const AuthPage = () => {
             router.push('/dashboard')
         } catch (err) {
             setError('Authentication failed. Please try again.');
+            console.log("Error:", err);
         } finally {
             setLoading(false);
         }
