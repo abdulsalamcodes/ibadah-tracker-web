@@ -6,8 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Circle, Plus, ChevronRight, Home, BarChart2, Settings } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import AddCustomIbadahModal from './AddCustomIbadahModal';
+import ProgressView from './ProgressView';
+import SettingsView from './SettingsView';
+
+import { Ibadah } from '@/types/ibadah';
+import { View } from '@/types/notification';
 
 const IbadahTracker = () => {
+  const [currentView, setCurrentView] = useState<View>('home');
+
   // Sample data to demonstrate functionality
   const [ibadahList, setIbadahList] = useState([
     { id: 1, name: 'Salatul Duha', description: 'Morning prayer', completed: true, time: '09:30 AM' },
@@ -20,95 +28,136 @@ const IbadahTracker = () => {
   const progressPercentage = (completedCount / ibadahList.length) * 100;
 
   const toggleCompletion = (id: number) => {
-    setIbadahList(ibadahList.map(item => 
+    setIbadahList(ibadahList.map(item =>
       item.id === id ? { ...item, completed: !item.completed } : item
     ));
   };
 
+  const handleAddCustomIbadah = (newIbadah: any) => {
+    // Generate a new ID (in a real app, this would come from the backend)
+    const id = ibadahList.length + 1;
+
+    setIbadahList([...ibadahList, {
+      id,
+      name: newIbadah.name,
+      description: newIbadah.description,
+      completed: false,
+      time: newIbadah.time
+    }]);
+  };
+
+  const handleLogout = () => {
+    // Implement your logout logic here
+    console.log('Logging out...');
+  };
+
+  // Render the appropriate view based on navigation state
+  const renderView = () => {
+    switch (currentView) {
+      case 'progress':
+        return <ProgressView />;
+      case 'settings':
+        return <SettingsView onLogout={handleLogout} />;
+      default:
+        return (
+          <>
+            {/* Header with Progress */}
+            <div className="sticky top-0 bg-white shadow-sm z-10">
+              <div className="p-4 max-w-md mx-auto">
+                <h1 className="text-xl font-semibold text-gray-900">Ibadah Tracker</h1>
+                <div className="mt-2">
+                  <Progress value={progressPercentage} className="h-2" />
+                  <p className="text-sm text-gray-600 mt-1">
+                    {completedCount} of {ibadahList.length} completed today
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Offline Status Indicator */}
+            <Alert className="max-w-md mx-auto mt-2 bg-yellow-50 border-yellow-200">
+              <AlertDescription className="text-yellow-800 text-sm">
+                You're offline. Changes will sync when connected.
+              </AlertDescription>
+            </Alert>
+
+            {/* Main Content */}
+            <main className="flex-1 p-4 max-w-md mx-auto w-full">
+              <Card className="mb-4">
+                <CardHeader className="pb-2">
+                  <h2 className="text-lg font-medium">Today's Ibadah</h2>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {ibadahList.map(ibadah => (
+                      <button
+                        key={ibadah.id}
+                        onClick={() => toggleCompletion(ibadah.id)}
+                        className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <div className="flex items-center space-x-3">
+                          {ibadah.completed ? (
+                            <CheckCircle className="w-6 h-6 text-green-500" />
+                          ) : (
+                            <Circle className="w-6 h-6 text-gray-400" />
+                          )}
+                          <div className="text-left">
+                            <h3 className="font-medium text-gray-900">{ibadah.name}</h3>
+                            <p className="text-sm text-gray-600">{ibadah.description}</p>
+                          </div>
+                        </div>
+                        <span className="text-sm text-gray-500">{ibadah.time}</span>
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions */}
+              <div className="grid grid-cols-1 gap-4">
+                <AddCustomIbadahModal onAddIbadah={handleAddCustomIbadah} />
+                {/* <Button
+                  variant="outline"
+                  className="flex items-center justify-between p-4 h-auto"
+                >
+                  <span>View Progress</span>
+                  <BarChart2 className="w-4 h-4 ml-2" />
+                </Button> */}
+              </div>
+            </main></>
+        );
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Header with Progress */}
-      <div className="sticky top-0 bg-white shadow-sm z-10">
-        <div className="p-4 max-w-md mx-auto">
-          <h1 className="text-xl font-semibold text-gray-900">Ibadah Tracker</h1>
-          <div className="mt-2">
-            <Progress value={progressPercentage} className="h-2" />
-            <p className="text-sm text-gray-600 mt-1">
-              {completedCount} of {ibadahList.length} completed today
-            </p>
-          </div>
-        </div>
-      </div>
+      {renderView()}
 
-      {/* Offline Status Indicator */}
-      <Alert className="max-w-md mx-auto mt-2 bg-yellow-50 border-yellow-200">
-        <AlertDescription className="text-yellow-800 text-sm">
-          You're offline. Changes will sync when connected.
-        </AlertDescription>
-      </Alert>
 
-      {/* Main Content */}
-      <main className="flex-1 p-4 max-w-md mx-auto w-full">
-        <Card className="mb-4">
-          <CardHeader className="pb-2">
-            <h2 className="text-lg font-medium">Today's Ibadah</h2>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {ibadahList.map(ibadah => (
-                <button
-                  key={ibadah.id}
-                  onClick={() => toggleCompletion(ibadah.id)}
-                  className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex items-center space-x-3">
-                    {ibadah.completed ? (
-                      <CheckCircle className="w-6 h-6 text-green-500" />
-                    ) : (
-                      <Circle className="w-6 h-6 text-gray-400" />
-                    )}
-                    <div className="text-left">
-                      <h3 className="font-medium text-gray-900">{ibadah.name}</h3>
-                      <p className="text-sm text-gray-600">{ibadah.description}</p>
-                    </div>
-                  </div>
-                  <span className="text-sm text-gray-500">{ibadah.time}</span>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-4">
-          <Button
-            variant="outline"
-            className="flex items-center justify-between p-4 h-auto"
-          >
-            <span>Add Custom</span>
-            <Plus className="w-4 h-4 ml-2" />
-          </Button>
-          <Button
-            variant="outline"
-            className="flex items-center justify-between p-4 h-auto"
-          >
-            <span>View Progress</span>
-            <BarChart2 className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
-      </main>
-
+      {/* Bottom Navigation */}
       {/* Bottom Navigation */}
       <nav className="sticky bottom-0 bg-white border-t">
         <div className="max-w-md mx-auto flex justify-around p-2">
-          <Button variant="ghost" className="flex-1">
-            <Home className="w-5 h-5 text-green-500" />
+          <Button
+            variant="ghost"
+            className="flex-1"
+            onClick={() => setCurrentView('home')}
+          >
+            <Home className={`w-5 h-5 ${currentView === 'home' ? 'text-green-500' : 'text-gray-500'}`} />
           </Button>
-          <Button variant="ghost" className="flex-1">
-            <BarChart2 className="w-5 h-5 text-gray-500" />
+          <Button
+            variant="ghost"
+            className="flex-1"
+            onClick={() => setCurrentView('progress')}
+          >
+            <BarChart2 className={`w-5 h-5 ${currentView === 'progress' ? 'text-green-500' : 'text-gray-500'}`} />
           </Button>
-          <Button variant="ghost" className="flex-1">
-            <Settings className="w-5 h-5 text-gray-500" />
+          <Button
+            variant="ghost"
+            className="flex-1"
+            onClick={() => setCurrentView('settings')}
+          >
+            <Settings className={`w-5 h-5 ${currentView === 'settings' ? 'text-green-500' : 'text-gray-500'}`} />
           </Button>
         </div>
       </nav>
