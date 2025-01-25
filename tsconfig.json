@@ -1,27 +1,57 @@
 {
   "compilerOptions": {
+    // Basic Compile Options
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    
+    // JavaScript Support
+    "allowJs": true,
+    "skipLibCheck": true,
+    
+    // Strict Type Checking
+    "strict": true,
+    "noEmit": true,
+    
+    // Module Resolution
+    "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    
+    // Additional Error Checking
+    "noUnusedLocals": false,        // Won't error on unused variables
+    "noUnusedParameters": false,    // Won't error on unused parameters
+    "allowUnusedLabels": true,      // Allows unused labels
+    "allowUnreachableCode": true,   // Allows unreachable code
+    
+    // Source Map Options
+    "sourceMap": true,              // Helps with debugging
+    "forceConsistentCasingInFileNames": true,
+    
+    // Next.js Specific
     "plugins": [
       {
         "name": "next"
       }
     ],
+    
+    // Path Aliases
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  
+  // File Inclusion/Exclusion
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
