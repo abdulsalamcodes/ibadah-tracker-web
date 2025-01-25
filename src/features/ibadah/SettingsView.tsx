@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,23 +8,34 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { AlertTriangle, Moon, Bell, Languages, HelpCircle, LogOut } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useRouter } from 'next/navigation';
 
 // First, let's define our interfaces to maintain type safety
 interface SettingsProps {
   onLogout: () => void;
 }
 
-const SettingsView = ({ onLogout }: SettingsProps) => {
+const SettingsView = () => {
   // We'll manage the settings state for demonstration
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [darkMode, setDarkMode] = React.useState(false);
   const [language, setLanguage] = React.useState('en');
 
+  const router = useRouter();
   // This would typically connect to your notification system
   const handleNotificationChange = (checked: boolean) => {
     setNotificationsEnabled(checked);
     // In a real app, you would persist this to your backend
   };
+
+  const handleLogout = () => {
+    // Implement your logout logic here
+    localStorage.clear();
+    router.push(
+        '/auth'
+    )
+    console.log('Logging out...');
+};
 
   return (
     <div className="flex flex-col space-y-4 p-4 max-w-md mx-auto">
@@ -160,7 +173,7 @@ const SettingsView = ({ onLogout }: SettingsProps) => {
       <Button 
         variant="outline" 
         className="w-full"
-        onClick={onLogout}
+        onClick={handleLogout}
       >
         <LogOut className="w-4 h-4 mr-2" />
         Logout

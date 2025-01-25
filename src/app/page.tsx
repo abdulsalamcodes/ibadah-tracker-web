@@ -1,9 +1,9 @@
-import IbadahTracker from '@/features/ibadah/IbadahTracker';
+import LandingPage from '@/features/landing-page/LandingPage';
 
 export default function Home() {
   return (
     <main>
-      <IbadahTracker />
+      <LandingPage />
     </main>
   );
 }
