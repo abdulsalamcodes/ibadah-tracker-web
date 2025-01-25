@@ -7,8 +7,6 @@ import { CheckCircle, Circle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AddCustomIbadahModal from './AddCustomIbadahModal';
 
-import { View } from '@/types/notification';
-
 const IbadahTracker = () => {
 
   // Sample data to demonstrate functionality
@@ -59,7 +57,7 @@ const IbadahTracker = () => {
       {/* Offline Status Indicator */}
       <Alert className="max-w-md mx-auto mt-2 bg-yellow-50 border-yellow-200">
         <AlertDescription className="text-yellow-800 text-sm">
-          You're offline. Changes will sync when connected.
+          You&apos;re offline. Changes will sync when connected.
         </AlertDescription>
       </Alert>
 
@@ -67,7 +65,7 @@ const IbadahTracker = () => {
       <main className="flex-1 p-4 max-w-md mx-auto w-full">
         <Card className="mb-4">
           <CardHeader className="pb-2">
-            <h2 className="text-lg font-medium">Today's Ibadah</h2>
+          <h2 className="text-lg font-medium">Today&apos;s Ibadah</h2>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

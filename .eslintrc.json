@@ -1,0 +1,12 @@
+{
+    "extends": "next/core-web-vitals",
+    "rules": {
+      "@typescript-eslint/no-explicit-any": "off",     // Disables the any type warning
+      "react/no-unescaped-entities": "off",            // Disables the unescaped entities warning
+      "@typescript-eslint/no-unused-vars": ["warn", {  // Keeps the unused variables as warnings
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }]
+    }
+  }
