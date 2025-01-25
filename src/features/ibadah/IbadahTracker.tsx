@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,7 +19,7 @@ const IbadahTracker = () => {
   const completedCount = ibadahList.filter(item => item.completed).length;
   const progressPercentage = (completedCount / ibadahList.length) * 100;
 
-  const toggleCompletion = (id) => {
+  const toggleCompletion = (id: number) => {
     setIbadahList(ibadahList.map(item => 
       item.id === id ? { ...item, completed: !item.completed } : item
     ));
