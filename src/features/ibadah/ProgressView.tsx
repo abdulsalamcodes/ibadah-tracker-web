@@ -1,38 +1,61 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Award } from 'lucide-react';
-
-interface IbadahProgress {
-  date: string;
-  completionRate: number;
-  totalCompleted: number;
-}
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { Award, Loader2 } from "lucide-react";
+import { progressApi, ProgressData } from "@/lib/api/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ProgressView = () => {
-  // Sample data - in a real app, this would come from your backend
-  const weeklyData: IbadahProgress[] = [
-    { date: 'Sun', completionRate: 80, totalCompleted: 4 },
-    { date: 'Mon', completionRate: 100, totalCompleted: 5 },
-    { date: 'Tue', completionRate: 60, totalCompleted: 3 },
-    { date: 'Wed', completionRate: 85, totalCompleted: 5 },
-    { date: 'Thu', completionRate: 90, totalCompleted: 4 },
-    { date: 'Fri', completionRate: 95, totalCompleted: 5 },
-    { date: 'Sat', completionRate: 70, totalCompleted: 3 },
-  ];
+  const [timeframe, setTimeframe] = useState<"week" | "month">("week");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [progressData, setProgressData] = useState<ProgressData | null>(null);
 
-  const [timeframe, setTimeframe] = useState<'week' | 'month'>('week');
+  useEffect(() => {
+    fetchProgress();
+  }, [timeframe]);
 
-  // Calculate overall statistics
-  const averageCompletion = Math.round(
-    weeklyData.reduce((acc, day) => acc + day.completionRate, 0) / weeklyData.length
-  );
+  const fetchProgress = async () => {
+    try {
+      setLoading(true);
+      const response = await progressApi.getProgress(timeframe);
+      setProgressData(response.data);
+      setError(null);
+    } catch (err) {
+      setError("Failed to load progress data");
+      console.error("Error fetching progress:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const totalCompletions = weeklyData.reduce((acc, day) => acc + day.totalCompleted, 0);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-full py-4 ">
+        <Loader2 className="w-6 h-6 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || !progressData) {
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="flex flex-col space-y-4 p-4 max-w-lg mx-auto">
@@ -40,16 +63,16 @@ const ProgressView = () => {
       <div className="flex justify-between items-center w-full">
         <h1 className="text-xl font-semibold">Your Progress</h1>
         <div className="flex gap-2">
-          <Button 
-            variant={timeframe === 'week' ? 'default' : 'outline'}
-            onClick={() => setTimeframe('week')}
+          <Button
+            variant={timeframe === "week" ? "default" : "outline"}
+            onClick={() => setTimeframe("week")}
             size="sm"
           >
             Week
           </Button>
           <Button
-            variant={timeframe === 'month' ? 'default' : 'outline'}
-            onClick={() => setTimeframe('month')}
+            variant={timeframe === "month" ? "default" : "outline"}
+            onClick={() => setTimeframe("month")}
             size="sm"
           >
             Month
@@ -67,9 +90,11 @@ const ProgressView = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline">
-              <span className="text-2xl font-bold">{averageCompletion}%</span>
+              <span className="text-2xl font-bold">
+                {progressData.averageCompletion}%
+              </span>
             </div>
-            <Progress value={averageCompletion} className="mt-2" />
+            <Progress value={progressData.averageCompletion} className="mt-2" />
           </CardContent>
         </Card>
 
@@ -81,7 +106,9 @@ const ProgressView = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline">
-              <span className="text-2xl font-bold">{totalCompletions}</span>
+              <span className="text-2xl font-bold">
+                {progressData.totalCompletions}
+              </span>
               <span className="ml-1 text-sm text-gray-500">acts</span>
             </div>
           </CardContent>
@@ -96,7 +123,7 @@ const ProgressView = () => {
         <CardContent>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={weeklyData}>
+              <LineChart data={progressData.dailyProgress}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis unit="%" />
@@ -107,6 +134,10 @@ const ProgressView = () => {
                         <div className="bg-white p-2 border rounded shadow">
                           <p className="font-medium">
                             {payload[0].value}% completed
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {payload[0].payload.totalCompleted} of{" "}
+                            {payload[0].payload.total} tasks
                           </p>
                         </div>
                       );
@@ -133,22 +164,17 @@ const ProgressView = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* Salatul Duha Example */}
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium">Salatul Duha</span>
-                <span className="text-sm text-gray-500">5/7 days</span>
+            {progressData.individualProgress.map((ibadah) => (
+              <div key={ibadah.id}>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm font-medium">{ibadah.name}</span>
+                  <span className="text-sm text-gray-500">
+                    {ibadah.completedDays}/{ibadah.totalDays} days
+                  </span>
+                </div>
+                <Progress value={ibadah.completionRate} />
               </div>
-              <Progress value={71} />
-            </div>
-            {/* Daily Quran Example */}
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium">Daily Quran</span>
-                <span className="text-sm text-gray-500">6/7 days</span>
-              </div>
-              <Progress value={85} />
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -161,13 +187,19 @@ const ProgressView = () => {
         <CardContent>
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <Award className="text-yellow-500" />
+              <Award className="text-yellow-500 h-6 w-6" />
               <div>
-                <p className="font-medium">5 day streak</p>
-                <p className="text-sm text-gray-500">Keep it up!</p>
+                <p className="font-medium">
+                  {progressData.streaks.current} day streak
+                </p>
+                <p className="text-sm text-gray-500">
+                  Longest streak: {progressData.streaks.longest} days
+                </p>
               </div>
             </div>
-            <Button variant="outline" size="sm">Details</Button>
+            <Button variant="outline" size="sm" onClick={fetchProgress}>
+              Refresh
+            </Button>
           </div>
         </CardContent>
       </Card>
