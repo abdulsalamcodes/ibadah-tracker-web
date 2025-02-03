@@ -56,16 +56,21 @@ const IbadahTracker = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [isOffline, setIsOffline] = useState(false); // Initialize without navigator.onLine
 
-  // Handle online/offline status
+  // Handle online/offline status in useEffect
   useEffect(() => {
+    // Set initial online status
+    setIsOffline(!navigator.onLine);
+
+    // Add event listeners for online/offline status
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
+    // Cleanup event listeners
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
